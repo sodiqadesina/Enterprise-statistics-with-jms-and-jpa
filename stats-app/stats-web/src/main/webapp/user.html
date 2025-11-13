@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Page</title>
+</head>
+<body>
+    <h1>User Dashboard</h1>
+
+    <!-- Form to query statistics information -->
+    <h2>Query Stats Information</h2>
+		<form action="modelget" method="get">
+		    <label for="modelname">Model Name:</label>
+		    <input type="text" id="modelname" name="modelname" required><br>
+		
+		    <label for="query">Query:</label>
+		    <select id="query" name="query">
+		        <option value="count">Count</option>
+		        <option value="mean">Mean</option>
+		        <option value="min">Min</option>
+		        <option value="max">Max</option>
+		        <option value="std">Std</option>
+		    </select><br><br>
+		
+		    <input type="submit" value="Query Stats">
+		</form>
+
+</body>
+</html>

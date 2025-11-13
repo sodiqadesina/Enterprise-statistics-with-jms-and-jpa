@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page</title>
+</head>
+<body>
+    <h1>Admin Dashboard</h1>
+    
+    <!-- Form to add a new user -->
+    <h2>Add User</h2>
+    <form action="addUser" method="post">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br>
+        
+        <label for="role">Role:</label>
+        <select id="role" name="role">
+            <option value="1">Admin</option>
+            <option value="2">Developer</option>
+            <option value="3">User</option>
+        </select><br><br>
+        
+        <input type="submit" value="Add User">
+    </form>
+
+    <!-- Form to search for a user by name -->
+    <h2>Find User by Name</h2>
+    <form action="findUser" method="get">
+        <label for="findUsername">Username:</label>
+        <input type="text" id="findUsername" name="username" required><br>
+        <input type="submit" value="Find User">
+    </form>
+
+    <!-- Link to list all users -->
+    <h2>List All Users</h2>
+    <form action="listUsers" method="get">
+        <input type="submit" value="List All Users">
+    </form>
+</body>
+</html>

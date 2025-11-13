@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stats Web Application</title>
+</head>
+<body>
+    <h1>Stats Web Application</h1>
+
+    <h2>Add Data (StatsSingleton)</h2>
+    <form action="/stats-web/add-data" method="get">
+        Value: <input type="text" name="value">
+        <input type="submit" value="Add Data">
+    </form>
+
+    <h2>Get Stats (StatsStateless)</h2>
+    <form action="/stats-web/get" method="get">
+        Query:
+        <select name="query">
+            <option value="count">Count</option>
+            <option value="min">Min</option>
+            <option value="max">Max</option>
+            <option value="mean">Mean</option>
+            <option value="std">Standard Deviation</option>
+            <option value="summary">Summary</option>
+        </select>
+        <input type="submit" value="Get Stats">
+    </form>
+
+    <h2>Insert Data and Get Stats (StatsStateful)</h2>
+    <form action="/stats-web/insert-data" method="get">
+        Value: <input type="text" name="value">
+        <input type="submit" value="Insert Data and Get Stats">
+    </form>
+</body>
+</html>

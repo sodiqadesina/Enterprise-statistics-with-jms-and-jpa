@@ -1,0 +1,65 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>ec.asgmt</groupId>
+    <artifactId>stats-client</artifactId>
+    <version>0.2.0</version>
+
+    <dependencies>
+        <!-- Dependency for the stats-ejb module -->
+        <dependency>
+            <groupId>ec.asgmt</groupId>
+            <artifactId>stats-ejb</artifactId>
+            <version>0.2.0</version>
+            <type>ejb</type>
+        </dependency>
+
+        <!-- WildFly client for remote EJB access -->
+        <dependency>
+            <groupId>org.wildfly</groupId>
+            <artifactId>wildfly-client-all</artifactId>
+            <version>18.0.1.Final</version>
+        </dependency>
+        
+	     <dependency>
+	        <groupId>org.jboss.spec.javax.jms</groupId>
+	        <artifactId>jboss-jms-api_2.0_spec</artifactId>
+	        <version>1.0.0.Final</version>
+	        <scope>provided</scope>
+	    </dependency>
+    
+	    <dependency>
+		    <groupId>mysql</groupId>
+		    <artifactId>mysql-connector-java</artifactId>
+		    <version>5.1.24</version>
+		  </dependency>
+    </dependencies>
+
+    <build>
+    <finalName>stats-client</finalName> <!-- This should  rename the JAR to stats-client.jar -->
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>3.2.0</version>
+            <executions>
+                <execution>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>shade</goal>
+                    </goals>
+                    <configuration>
+                        <transformers>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <mainClass>ec.stats.StatsSBClientEar</mainClass>
+                            </transformer>
+                        </transformers>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+
+</project>

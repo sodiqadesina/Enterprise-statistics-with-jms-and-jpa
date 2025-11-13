@@ -1,0 +1,49 @@
+
+C:\enterprise\workspace\a2>rem A2 batch test 
+
+C:\enterprise\workspace\a2>echo A2 batch test 
+A2 batch test
+
+C:\enterprise\workspace\a2>echo username:sina 
+username:sina
+
+C:\enterprise\workspace\a2>echo CD 
+CD
+
+C:\enterprise\workspace\a2>start "mysql" cmd /k mysql_start 
+
+C:\enterprise\workspace\a2>sleep 5 
+
+C:\enterprise\workspace\a2>start "wildfly" cmd /k standalone -c standalone-full.xml 
+
+C:\enterprise\workspace\a2>sleep 10 
+
+C:\enterprise\workspace\a2>cd stats-client 
+
+C:\enterprise\workspace\a2\stats-client>call mvn clean package -q 
+Deleted user: admin
+Inserted user: admin
+ID: 6
+Name: admin
+Role: 1
+Inserted model: stats
+ID: 25
+Name: stats
+Classname: StatsSummary
+Date: 2024-10-12 23:43:05.0
+Deleted model: stats
+Usage: java -cp target/stats-client.jar ec.stats.jms.StatsJMSProducer -message <message_content>
+Usage: java -cp target/stats-client.jar ec.stats.jms.StatsJMSPublisher -message <message_content>
+Message sent to queue: save
+Message sent to topic: 10.0
+Message sent to queue: save
+Message published to topic: 10
+Deleted model: mystats
+<html><body>
+<h1>Model Saved Successfully!</h1>
+<p>Model Name: mystats</p>
+<a href='index_model_query.html'>Go Back</a>
+</body></html>
+Count: 1
+Mean: 10.0
+END

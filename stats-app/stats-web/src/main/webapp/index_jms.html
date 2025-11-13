@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="ISO-8859-1">
+    <title>JMS Messaging</title>
+</head>
+<body>
+    <h2>Send a Message to Queue via Servlet</h2>
+    <form action="/stats-web/producer" method="GET">
+        Message: <input type="text" name="message" value="save"><br>
+        <input type="submit" value="Submit">
+    </form>
+
+    <h2>Send a Message to Topic via Servlet</h2>
+    <form action="/stats-web/publisher" method="GET">
+        Message (enter a double value): <input type="text" name="message" placeholder="Enter a double value"><br>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
