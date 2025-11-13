@@ -31,126 +31,135 @@ Enterprise-statistics-jms-jpa/
 Java 8 | Jakarta EE (EJB 3.2, JMS, Servlet 4.0, JPA 2.1) | MySQL 8 | WildFly 18 | Maven | JUnit | Log4j  
 
 
+---
 
 ## 🧠 Core Features
-- **JPA Persistence** — entities `User` and `Model` mapped to MySQL (`java:/MySqlDS`) via Hibernate.  
-- **JMS Messaging** — Queue (`StatsQueue`) and Topic (`StatsTopic`) used to send numeric/stat messages.  
-- **MDB Consumers** — automatically process messages to add data, store data to file, or save the current model.  
-- **Role-based Web Dashboards** — Admin adds users, Developer saves stats, User queries models.  
-- **Remote Client Support** — command-line tools for DB setup and JMS testing.
 
+- **JPA Persistence:** User and Model entities persisted to MySQL (`java:/MySqlDS`) using Hibernate.  
+- **Asynchronous Messaging:** Queue (`StatsQueue`) and Topic (`StatsTopic`) enable parallel stat updates and model saving.  
+- **Message-Driven Beans:** Automated message handling for data input, model storage, and file persistence.  
+- **Web Integration:** Role-based dashboards for Admin, Developer, and User.  
+- **Remote Clients:** Testable from command-line tools without a web UI.  
+
+---
 
 ## 🧱 Part 1 – JPA Persistence and DAO Testing
 
 ### 🧾 Database CRUD Validation
-`StatsDBCreate`, `StatsDBInsert`, `StatsDBSelect`, and `StatsDBDelete` were executed from the client.  
-MySQL tables `ecuser` and `ecmodel` confirm successful inserts and deletes.
+`StatsDBCreate`, `StatsDBInsert`, `StatsDBSelect`, and `StatsDBDelete` validate database connectivity and DAO correctness.
 
 ![DB Client and CRUD Operations](images/db-cleint-and-crud-operation.PNG)
 
-✅ **Explanation:**  
-- `StatsDBCreate` created tables.  
-- `StatsDBInsert` added `admin`, `me`, and `guest` users.  
-- `StatsDBSelect` verified rows from MySQL.  
-- Console and phpMyAdmin views match DAO expectations.  
+**Explanation:**  
+This test demonstrates full CRUD capability on the `ecuser` and `ecmodel` tables.  
+- `StatsDBCreate` generated the tables automatically via JPA.  
+- Inserts and selections confirm the `EntityManager` is properly configured with `MySqlDS`.  
+- Matching console and MySQL views prove successful DAO wiring and persistence lifecycle.
 
+---
 
 ### 👤 User Entity and DAO
-`UserDaoImpl` persists users through the `primary` JPA unit with `hibernate.hbm2ddl.auto=update`.
 
 ![User Entity Bean](images/User-Entity-Bean.PNG)  
 ![Using User Entity Beans](images/Using-User-Entity-Beans.PNG)
 
-✅ **Explanation:**  
-JPA generated the `ecuser` table and automatically assigned IDs.  
-The console logs show insert and find operations executed through the DAO.
+**Explanation:**  
+The `User` entity defines fields like `id`, `username`, and `role`.  
+In the second screenshot, DAO operations (`persist()`, `find()`, `remove()`) confirm entity lifecycle management works seamlessly through the JPA context.  
+Automatic ID generation shows Hibernate’s schema synchronization (`hbm2ddl=update`) is active.
 
-
+---
 
 ### 🧩 Model Entity and DAO
-Models represent serialized statistics objects stored in the DB.
 
 ![Model Entity Bean](images/Model-Entity-Bean.PNG)  
 ![Using Model Entity Bean](images/Using-Model-Entity-Bean.PNG)
 
-✅ **Explanation:**  
-The DAO stores and retrieves the `StatsSummary` object.  
-JPA confirms SQL `insert` and `select` events in the console.
+**Explanation:**  
+The `Model` entity encapsulates computed statistics (`count`, `mean`, `std`, etc.) stored as a serialized `StatsSummary`.  
+DAO test outputs confirm the entity is correctly inserted and retrieved from MySQL.  
+SQL logs in WildFly show `insert` and `select` operations, verifying the `primary` persistence unit configuration.
 
-
+---
 
 ## 📡 Part 2 – JMS Messaging and MDB Processing
 
-### ✉️ JMS Client (Producers & Publishers)
-Standalone clients send messages to the Queue and Topic using JNDI lookup.
+### ✉️ JMS Client (Producer & Publisher)
 
 ![JMS Client Results](images/jms-client-results.PNG)
 
-✅ **Explanation:**  
-- `StatsJMSProducer` → Queue message “save”.  
-- `StatsJMSPublisher` → Topic message “10”.  
-WildFly logs show each MDB receiving and processing the message.
+**Explanation:**  
+Two JMS clients send messages:
+- **Producer:** sends “save” to the Queue to trigger model persistence.  
+- **Publisher:** sends “10” to the Topic to broadcast new statistical data.  
+WildFly logs confirm both messages reach their respective MDBs, showing proper JNDI lookup and resource injection.
 
+---
 
-
-### 🧮 Message-Driven Beans
-Three MDBs handle different aspects of incoming messages.
+### 🧮 Message-Driven Beans (MDBs)
 
 | MDB Class | Destination | Purpose |
 |------------|--------------|---------|
-| `StatsMDBAddData` | Topic | Parses numeric messages and adds data to the singleton. |
-| `StatsMDBSaveModel` | Queue | Saves current `StatsSummary` to DB (model snapshot). |
-| `StatsMDBStoreData` | Queue | Appends raw values to a text file for traceability. |
+| `StatsMDBAddData` | Topic | Adds incoming numeric data to statistics. |
+| `StatsMDBSaveModel` | Queue | Saves computed model snapshots to DB. |
+| `StatsMDBStoreData` | Queue | Logs numeric data to a text file for audit. |
 
-#### 🧾 Add Data MDB
+#### Add Data MDB
 ![Message Queue MDB](images/message-queue-mdb.PNG)
 
-#### 🧾 Topic MDB
+#### Topic MDB
 ![Message Topic MDB](images/message-topic-mdb.PNG)
 
-✅ **Explanation:**  
-The WildFly console shows the MDBs activated (`Started message driven bean...`).  
-When a message “10” is published to the topic, subscribers invoke the stateless bean to update mean and count.
+**Explanation:**  
+The WildFly console shows the MDBs deployed and active (“Started message driven bean…”).  
+When a topic message (“10”) is published, all subscribed MDBs respond — updating stats, saving models, and storing data files concurrently.  
+This demonstrates asynchronous, decoupled event-driven processing in an enterprise environment.
 
-
+---
 
 ## 💻 Part 3 – Web Dashboard & Servlet Integration
 
 ### 🌐 Dashboard Pages
-Admin, Developer, and User dashboards invoke different Servlets mapped under `/stats-web/`.
 
 ![JMS Client Within Servlet](images/jms-client-within-servlet.PNG)
 
-✅ **Explanation:**  
-- Admin adds users and lists all records.  
-- Developer saves statistical summaries.  
-- User queries model count / mean values.  
+**Explanation:**  
+The web interface exposes role-based dashboards:  
+- **Admin:** manages users.  
+- **Developer:** triggers data-saving operations.  
+- **User:** retrieves live statistics and model summaries.  
+Each page invokes a Servlet that communicates with an EJB or JMS helper bean behind the scenes.  
+The screenshot shows real-time result confirmation from the servlet responses.
 
-Each Servlet interacts with its EJB (DAO or JMS helper).  
-Outputs confirm data flows from web front-end to backend.
+---
 
+### ⚙️ Servlet and Stateless Bean Interaction
 
-
-### ⚙️ Servlet + Stateless Bean Integration
 ![JMS Client Within Session Beans](images/jms-client-within-session-beans.PNG)
 
-✅ **Explanation:**  
-Stateless session beans send messages to the Queue and Topic internally.  
-The console proves the message “save” and “10” traveled through EJB layers to MDB consumers.
+**Explanation:**  
+This verifies end-to-end communication between the web layer and backend logic.  
+A stateless session bean sends Queue and Topic messages internally when a servlet request is made.  
+The console log (visible above) proves that each web-triggered call successfully propagated to the JMS infrastructure, invoking the MDBs as designed.
 
+---
 
-## 🧪 End-to-End JMS Workflow Verification
+## 🔄 Part 4 – End-to-End JMS Workflow
 
 ![Model Operations](images/Using-Model-Entity-Bean.PNG)
 
-✅ **Explanation:**  
-1. `curl http://localhost:8080/stats-web/producer?message=save` → Queue message → `StatsMDBSaveModel`.  
-2. `curl http://localhost:8080/stats-web/publisher?message=10` → Topic message → `StatsMDBAddData` + `StatsMDBStoreData`.  
-3. Logs confirm “Data appended to file: 10” and model saved in DB.  
-4. Web query Servlet retrieves mean and count (`count=3`, `mean=20`).
+**Explanation:**  
+This test validates the full workflow:
+1. **Request:** `/producer?message=save` — pushes to `StatsMDBSaveModel`.  
+2. **Broadcast:** `/publisher?message=10` — triggers both `StatsMDBAddData` and `StatsMDBStoreData`.  
+3. **Outcome:** Log entries show “Data appended to file: 10”, while JPA confirms `Model` updates in MySQL.  
+4. **Query:** Servlet fetches current statistics, returning `count=3`, `mean=20`.  
 
+This proves successful orchestration between Servlets → EJBs → JMS → MDBs → JPA.
 
-## 🧾 Persistence Configuration
+---
+
+## ⚙️ Persistence Configuration
 
 ```xml
 <persistence-unit name="primary" transaction-type="JTA">
@@ -163,8 +172,11 @@ The console proves the message “save” and “10” traveled through EJB laye
     <property name="hibernate.show_sql" value="true"/>
   </properties>
 </persistence-unit>
+
+
+
 ```
-✅ Explanation:
+Explanation:
 The persistence.xml links Hibernate to MySQL and automatically creates entity tables.
 
 ### 🚀 Build and Run Guide
